@@ -1,5 +1,5 @@
 from flask import Flask, request
-from api import apiBalanceCheck
+from api import apiBalanceAdd, apiBalanceCheck
 
 app = Flask(__name__)
 
@@ -49,12 +49,29 @@ def testApi():
 @app.route("/balance_check", methods=['GET'])
 def balanceCheck():
     """Function to check the balance"""
-    print("reached here")
+    print("Called Balance Check")
     uniqueId = request.args.get('uuid')
     if not uniqueId:
         return "Missing Parameters", 400
     else:
         response = apiBalanceCheck.balanceCheck(uniqueId)
+        return response[0], response[1]
+
+
+@app.route("/balance_add", methods=['POST'])
+def balanceAdd():
+    """Function to add the balance"""
+    print("Called Balance Add")
+
+    cardNumber = request.args.get('cardNumber')
+    balanceToAdd = request.args.get('balanceToAdd')
+
+    # print("Unique Id", cardNumber)
+
+    if not cardNumber or not balanceToAdd:
+        return "Missing Parameters", 400
+    else:
+        response = apiBalanceAdd.balanceAdd(cardNumber, balanceToAdd)
         return response[0], response[1]
 
 
