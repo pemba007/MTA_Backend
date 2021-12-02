@@ -3,14 +3,17 @@ from utils import *
 from flask import jsonify
 
 
-def balanceCheck(uuid: str) -> tuple:
+def balanceCheck(cardNumber: str) -> tuple:
     try:
 
         connection = getDatabaseConnection()
         cur = connection.cursor()
         # uuid = '74b83e33-cde6-4ac9-bf1f-915a9f03a54d'
+        # cur.execute("""select * from metrocards where "CardNumber" = (%s);""",
+        #             (cardNumber))
+
         cur.execute("""select * from metrocards where "CardNumber" = (%s);""",
-                    (uuid, ))
+                    (cardNumber, ))
         records = cur.fetchall()
         # print("These are the records")
         # print(records)

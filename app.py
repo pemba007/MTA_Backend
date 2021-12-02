@@ -1,5 +1,5 @@
 from flask import Flask, request
-from api import apiBalanceAdd, apiBalanceCheck
+from api import apiBalanceAdd, apiBalanceCheck, apiCardSwipe
 
 app = Flask(__name__)
 
@@ -50,11 +50,11 @@ def testApi():
 def balanceCheck():
     """Function to check the balance"""
     print("Called Balance Check")
-    uniqueId = request.args.get('uuid')
-    if not uniqueId:
+    cardNumber = request.args.get('cardNumber')
+    if not cardNumber:
         return "Missing Parameters", 400
     else:
-        response = apiBalanceCheck.balanceCheck(uniqueId)
+        response = apiBalanceCheck.balanceCheck(cardNumber)
         return response[0], response[1]
 
 
@@ -71,8 +71,35 @@ def balanceAdd():
     if not cardNumber or not balanceToAdd:
         return "Missing Parameters", 400
     else:
-        response = apiBalanceAdd.balanceAdd(cardNumber, balanceToAdd)
+        response = apiBalanceAdd.balanceAdd(cardNumber=cardNumber,
+                                            balanceToAdd=balanceToAdd)
         return response[0], response[1]
+
+
+@app.route("/card_swipe_metro", methods=['POST'])
+def cardSwipeMetro():
+    """Function to handle metro card swipe"""
+    print("Called Metro Card Swipe")
+
+    cardNumber = request.args.get('cardNumber')
+    # print("The card number is ")
+    # print(cardNumber)
+
+    response = apiCardSwipe.cardSwipeMetro(cardNumber=cardNumber)
+
+    return response[0], response[1]
+
+
+@app.route("/card_swipe_debit_credit", methods=['POST'])
+def cardSwipeDebitCredit():
+    """Function to handle debit/credit card pay"""
+    print("Called Debit / Card Card Swipe")
+
+    cardNumber = request.args.get('cardNumber')
+
+    response = apiCardSwipe.cardSwipeDebitCredit(cardNumber=cardNumber)
+
+    return response[0], response[1]
 
 
 if __name__ == '__main__':
