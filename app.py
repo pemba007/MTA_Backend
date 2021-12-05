@@ -1,5 +1,5 @@
 from flask import Flask, request
-from api import apiBalanceAdd, apiBalanceCheck, apiCardSwipe
+from api import apiBalanceAdd, apiBalanceCheck, apiCardSwipe, apiIssueCard
 
 app = Flask(__name__)
 
@@ -97,7 +97,28 @@ def cardSwipeDebitCredit():
 
     cardNumber = request.args.get('cardNumber')
 
-    response = apiCardSwipe.cardSwipeDebitCredit(cardNumber=cardNumber)
+    response = apiCardSwipe.cardSwipeDebitCredit(
+        debitCreditCardNumber=cardNumber)
+
+    return response[0], response[1]
+
+
+@app.route("/issue_metro_limited", methods=['POST'])
+def issueMetroLimited():
+    """Function to issue limited metro card"""
+
+    initialBalance = request.args.get('initialBalance')
+
+    response = apiIssueCard.issueLimited(initialBalance=initialBalance)
+
+    return response[0], response[1]
+
+
+@app.route("/issue_metro_unlimited", methods=['POST'])
+def issueMetroUnlimited():
+    """Function to issue unlimited metro card"""
+
+    response = apiIssueCard.issueUnlimited()
 
     return response[0], response[1]
 

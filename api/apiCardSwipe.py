@@ -2,6 +2,7 @@
 from utils import *
 from flask import jsonify
 from datetime import datetime
+from api import apiUtils
 
 
 def cardSwipeMetro(cardNumber: str) -> tuple:
@@ -9,21 +10,12 @@ def cardSwipeMetro(cardNumber: str) -> tuple:
         print("Function to handle card swipe for metro cards")
         connection = getDatabaseConnection()
         cur = connection.cursor()
-        # uuid = '74b83e33-cde6-4ac9-bf1f-915a9f03a54d'
 
-        # cur.execute(
-        #     """update metrocards set "Balance" = "Balance" + (%s) where "CardNumber" = (%s);""",
-        #     (balanceToAdd, cardNumber))
-
-        # Step 1 : Check if balance can be handled
-        # cur.execute(
-        #     """select * from metrocards where "CardNumber" = '(%s)';""",
-        #     (cardNumber))
         cur.execute("""select * from metrocards where "CardNumber" = (%s);""",
                     (cardNumber, ))
 
         records = cur.fetchone()
-        # print(records)
+        print("Records got" + str(records))
 
         if not records:
             # If no records found
@@ -36,36 +28,58 @@ def cardSwipeMetro(cardNumber: str) -> tuple:
             isValid = records[-3] < datetime.now()
 
             if not isLimited and isValid:
-                # Unlimited Card Handled
+                print("Unlimited Valid Card")
                 returnObject = (jsonify(response_code=1), 200)
 
+                if (apiUtils.addRecord(cur,
+                                       cardNumber=cardNumber,
+                                       paymentType="Metrocard")):
+                    connection.commit()
+                    returnObject = (jsonify(response_code=1), 200)
+                else:
+                    returnObject = (jsonify(response_code=-1), 200)
                 # Remaining
-                # Implement genenric record adding function
-
-                # Implement Unlimited valid card handling
             elif not isLimited and not isValid:
-                # Unlimited but expired
+                print("Unlimited invalid Card")
 
                 # Remaining
                 # Return Error for expired card
                 returnObject = (jsonify(response_code=-1), 200)
             elif isLimited and hasBalance:
                 # Limited and hasBalance
+                print("Limited balance card")
+
+                if (apiUtils.balanceCut(cur, cardNumber=cardNumber)):
+
+                    if (apiUtils.addRecord(cur,
+                                           cardNumber=cardNumber,
+                                           paymentType="Metrocard")):
+                        connection.commit()
+                        returnObject = (jsonify(response_code=1), 200)
+                    else:
+                        connection.rollback()
+                        returnObject = (jsonify(
+                            response_code=-1,
+                            response_message="Couldn't add record"), 200)
+                else:
+                    connection.rollback()
+                    returnObject = (jsonify(response_code=-1), 200)
 
                 # Remaining
                 # Handle balance cut and record addition
-                returnObject = (jsonify(response_code=0), 200)
+
             elif isLimited and not hasBalance:
+                print("Limited no balance card")
                 # Limited and not enough balance
 
                 # Remaining
                 # Return Error for no balance
                 # Request for balance addition
-                returnObject = (jsonify(response_code=-1), 200)
+                returnObject = (jsonify(response_code=-1,
+                                        response_message="Not enough balance"),
+                                200)
 
         # Step 2 : Cut the balance
-
-        connection.commit()
         cur.close()
         connection.close()
 
@@ -76,29 +90,25 @@ def cardSwipeMetro(cardNumber: str) -> tuple:
         return (jsonify(response_code=-1), 500)
 
 
-def cardSwipeDebitCredit(cardNumber: str) -> tuple:
+def cardSwipeDebitCredit(debitCreditCardNumber: str) -> tuple:
     try:
         print("Function to handle card swipe for debit/credit cards")
         connection = getDatabaseConnection()
         cur = connection.cursor()
-        # uuid = '74b83e33-cde6-4ac9-bf1f-915a9f03a54d'
 
-        # cur.execute(
-        #     """update metrocards set "Balance" = "Balance" + (%s) where "CardNumber" = (%s);""",
-        #     (balanceToAdd, cardNumber))
-
-        # Step 1 : Check if balance can be handled
-        cur.execute("""select * from metrocards where "CardNumber" = (%s);""",
-                    (cardNumber))
-
-        records = cur.fetchone()
-        print(records)
-        # Step 2 : Cut the balance
+        # Put record for the cards
+        if (apiUtils.addRecord(cur,
+                               cardNumber=debitCreditCardNumber,
+                               paymentType="Debit/Credit")):
+            connection.commit()
+            returnObject = (jsonify(response_code=1), 200)
+        else:
+            returnObject = (jsonify(response_code=-1), 200)
 
         connection.commit()
         cur.close()
         connection.close()
 
-        return (jsonify(response_code=1), 200)
+        return returnObject
     except Exception as e:
         return (jsonify(response_code=-1), 500)

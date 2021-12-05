@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from utils import *
 
 from datetime import datetime
+from api import apiUtils
+from api import apiIssueCard
 
 # Flask Run Code
 # FLASK_ENV=development flask run
@@ -10,36 +12,44 @@ from datetime import datetime
 # print("Now is")
 # print(now)
 
-conn = getDatabaseConnection()
-cur = conn.cursor()
-cardNumber = '74b83e33-cde6-4ac9-bf1f-915a9f03a54d'
+# conn = getDatabaseConnection()
+# cur = conn.cursor()
+
+print(apiIssueCard.issueLimited(initialBalance=22.141))
+
+# cardNumber = '74b83e33cde64ac9bf1f915a9f03a54d'
 # cardType = 'Unlimited'
 # insertSQL = """INSERT INTO metrocards("CardNumber", "CardType", "IssuedOn", "ExpiresOn", "Balance") VALUES ((%s), (%s), '2004-10-19 10:23:45', '2004-10-19 10:23:50', 2.80) ;"""
 
 # cur.execute(insertSQL, (uuid, cardType))
 
-cur.execute("""select * from metrocards where "CardNumber" = (%s);""",
-            (cardNumber, ))
+# cur.execute("""select * from metrocards where "CardNumber" = (%s);""",
+#             (cardNumber, ))
 
-records = cur.fetchone()
+# if (apiUtils.addRecord(cur, cardNumber=cardNumber, paymentType="Unlimited")):
+#     print("wassup")
+# else:
+#     print("Shit")
+# records = cur.fetchone()
+
 # print(records)
 
-if not records:
-    # If no records found
-    # returnObject = (jsonify(response_code=0), 200)
-    print("No Records found")
-else:
-    # If records found
-    isLimited = records[-1] != "Unlimited"
-    hasBalance = records[-2] > 2.75
-    isValid = records[-3] < datetime.now()
+# if not records:
+#     # If no records found
+#     # returnObject = (jsonify(response_code=0), 200)
+#     print("No Records found")
+# else:
+#     # If records found
+#     isLimited = records[-1] != "Unlimited"
+#     hasBalance = records[-2] > 2.75
+#     isValid = records[-3] < datetime.now()
 
-    # print(isValid)
+#     # print(isValid)
 
-    # print(type(isValid))
+#     # print(type(isValid))
 
-    if not isLimited:
-        print("Unlimited thing")
+#     if not isLimited:
+#         print("Unlimited thing")
 
 # print(returnObject)
 
@@ -56,5 +66,5 @@ else:
 # conn.commit()
 
 # Close communication with the database
-cur.close()
-conn.close()
+# cur.close()
+# conn.close()
