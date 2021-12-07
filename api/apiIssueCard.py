@@ -2,7 +2,7 @@ from flask.wrappers import Response
 from utils import *
 from flask import jsonify
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
@@ -46,7 +46,7 @@ def issueUnlimited() -> tuple:
 
         cur.execute(
             """INSERT INTO metrocards("CardNumber", "IssuedOn", "ExpiresOn", "Balance", "CardType") VALUES (%s, %s, %s, %s, %s);""",
-            (cardNumber, currentDate, str(date_after_month), 0, 'Unl imited'))
+            (cardNumber, currentDate, str(date_after_month), 0, 'Unlimited'))
 
         connection.commit()
         cur.close()

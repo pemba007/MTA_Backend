@@ -1,41 +1,12 @@
 from flask import Flask, request
-from api import apiBalanceAdd, apiBalanceCheck, apiCardSwipe, apiIssueCard
+from flask.wrappers import Response
+from api import apiBalanceAdd, apiBalanceCheck, apiCardSwipe, apiIssueCard, apiLatestPayment
+from flask_cors import CORS
 
 app = Flask(__name__)
-
-# @app.route("/", methods=['GET'])
-# def entry_api():
-#     try:
-
-#         conn = psycopg2.connect(database="MTA_Test",
-#                                 user='postgres',
-#                                 password='    ',
-#                                 host='127.0.0.1',
-#                                 port='5432')
-#         cur = conn.cursor()
-#         # Execute a command: this creates a new table
-#         # cur.execute(
-#         #     "CREATE TABLE test (id serial PRIMARY KEY, num integer, data varchar);"
-#         # )
-
-#         # Pass data to fill a query placeholders and let Psycopg perform
-#         # the correct conversion (no more SQL injections!)
-#         cur.execute("INSERT INTO Cards (CardType) VALUES (%s)", ("Unlimited"))
-
-#         # Query the database and obtain data as Python objects
-#         cur.execute("SELECT * FROM Cards;")
-#         records = cur.fetchone()
-#         print(records)
-#         # Make the changes to the database persistent
-#         conn.commit()
-
-#         # Close communication with the database
-#         cur.close()
-#         conn.close()
-#         return records
-#     except Exception as err:
-#         print(err)
-#         return 'Error has occured'
+# CORS(app)
+# app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route("/test", methods=['GET', 'POST', 'DELETE'])
@@ -51,6 +22,7 @@ def balanceCheck():
     """Function to check the balance"""
     print("Called Balance Check")
     cardNumber = request.args.get('cardNumber')
+    # cardNumber = request.json['params']['cardNumber']
     if not cardNumber:
         return "Missing Parameters", 400
     else:
@@ -63,10 +35,16 @@ def balanceAdd():
     """Function to add the balance"""
     print("Called Balance Add")
 
-    cardNumber = request.args.get('cardNumber')
-    balanceToAdd = request.args.get('balanceToAdd')
+    print(request.json['params'])
 
-    # print("Unique Id", cardNumber)
+    cardNumber = request.json['params']['cardNumber']
+    balanceToAdd = request.json['params']['balanceToAdd']
+
+    # cardNumber = request.args.get('cardNumber')
+    # balanceToAdd = request.args.get('balanceToAdd')
+
+    print("cardNumber", cardNumber)
+    print('balanceToAdd', balanceToAdd)
 
     if not cardNumber or not balanceToAdd:
         return "Missing Parameters", 400
@@ -81,9 +59,8 @@ def cardSwipeMetro():
     """Function to handle metro card swipe"""
     print("Called Metro Card Swipe")
 
-    cardNumber = request.args.get('cardNumber')
-    # print("The card number is ")
-    # print(cardNumber)
+    # cardNumber = request.args.get('cardNumber')
+    cardNumber = request.json['params']['cardNumber']
 
     response = apiCardSwipe.cardSwipeMetro(cardNumber=cardNumber)
 
@@ -95,7 +72,8 @@ def cardSwipeDebitCredit():
     """Function to handle debit/credit card pay"""
     print("Called Debit / Card Card Swipe")
 
-    cardNumber = request.args.get('cardNumber')
+    # cardNumber = request.args.get('cardNumber')
+    cardNumber = request.json['params']['cardNumber']
 
     response = apiCardSwipe.cardSwipeDebitCredit(
         debitCreditCardNumber=cardNumber)
@@ -107,7 +85,8 @@ def cardSwipeDebitCredit():
 def issueMetroLimited():
     """Function to issue limited metro card"""
 
-    initialBalance = request.args.get('initialBalance')
+    # initialBalance = request.args.get('initialBalance')
+    initialBalance = request.json['params']['initialBalance']
 
     response = apiIssueCard.issueLimited(initialBalance=initialBalance)
 
@@ -119,6 +98,24 @@ def issueMetroUnlimited():
     """Function to issue unlimited metro card"""
 
     response = apiIssueCard.issueUnlimited()
+
+    return response[0], response[1]
+
+
+@app.route('/get_latest_payments', methods=['GET'])
+def getLatestPayment():
+    """Function to get latest payment"""
+
+    response = apiLatestPayment.getLatestPayment()
+
+    return response[0], response[1]
+
+
+@app.route('/get_latest_metrocards', methods=['GET'])
+def getLatestMetrocards():
+    """Function to get latest metrocards"""
+
+    response = apiLatestPayment.getLatestCards()
 
     return response[0], response[1]
 

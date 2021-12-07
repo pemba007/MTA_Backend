@@ -11,7 +11,7 @@ def balanceCut(connectionCursor, cardNumber) -> bool:
     try:
 
         connectionCursor.execute(
-            """update metrocards set "Balance" = "Balance" - 1.75 where "CardNumber" = (%s);""",
+            """update metrocards set "Balance" = "Balance" - 2.75 where "CardNumber" = (%s);""",
             (cardNumber, ))
         return True
     except Exception as e:

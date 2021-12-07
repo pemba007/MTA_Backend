@@ -65,16 +65,10 @@ def cardSwipeMetro(cardNumber: str) -> tuple:
                     connection.rollback()
                     returnObject = (jsonify(response_code=-1), 200)
 
-                # Remaining
-                # Handle balance cut and record addition
-
             elif isLimited and not hasBalance:
-                print("Limited no balance card")
                 # Limited and not enough balance
+                print("Limited no balance card")
 
-                # Remaining
-                # Return Error for no balance
-                # Request for balance addition
                 returnObject = (jsonify(response_code=-1,
                                         response_message="Not enough balance"),
                                 200)
