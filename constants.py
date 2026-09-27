@@ -1,13 +1,8 @@
+"""Database settings, read from environment variables so credentials never live in git."""
 import os
-# if os.environ['ENV'] == 'prod':
-DB_HOST = "john.db.elephantsql.com"
-DB_USER = 'tsetxsix'
-DB_PASSWORD = 'mXamL8z02zo5a5f-4QkS1qyjeblPZxy8'
-DB_PORT = '5432'
-DB_DATABASE = 'tsetxsix'
-# else:
-# DB_HOST = "127.0.0.1"
-# DB_USER = 'postgres'
-# DB_PASSWORD = '    '
-# DB_PORT = '5432'
-# DB_DATABASE = 'MTA_Test'
+
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
+DB_PORT = os.environ.get("DB_PORT", "5432")
+DB_DATABASE = os.environ.get("DB_DATABASE", "mta")
